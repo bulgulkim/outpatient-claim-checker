@@ -1,513 +1,934 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>외래 실손 청구 서류 체크기</title>
-    <style>
-      :root {
-        --bg: #f1f5f9;
-        --card: #ffffff;
-        --line: #e2e8f0;
-        --text: #0f172a;
-        --sub: #475569;
-        --blue-bg: #eff6ff;
-        --blue-line: #bfdbfe;
-        --blue-text: #1e3a8a;
-        --red-bg: #fef2f2;
-        --red-line: #fecaca;
-        --red-text: #991b1b;
-        --amber-bg: #fffbeb;
-        --amber-line: #fde68a;
-        --amber-text: #92400e;
-        --gray-bg: #f8fafc;
-        --gray-line: #cbd5e1;
-        --gray-text: #334155;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>외래 실손 청구 서류 점검기</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --text: #18212f;
+      --muted: #586474;
+      --line: #dbe3ee;
+      --primary: #1858d6;
+      --primary-soft: #eaf2ff;
+      --ok: #107c41;
+      --ok-soft: #eaf7f0;
+      --warn: #b86a00;
+      --warn-soft: #fff5e8;
+      --danger: #b42318;
+      --danger-soft: #fff1f0;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+    }
 
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-      }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
 
+    a { color: inherit; }
+
+    .wrap {
+      width: min(960px, calc(100% - 28px));
+      margin: 32px auto 64px;
+    }
+
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(28px, 4.5vw, 42px);
+      line-height: 1.18;
+      letter-spacing: -0.035em;
+    }
+
+    .lead {
+      margin: 0;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    .notice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .notice {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .main {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #ebf0f6;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #1e6bff 0%, #3d8bfd 100%);
+      transition: width 0.25s ease;
+    }
+
+    .question-kicker {
+      display: inline-block;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .question-title {
+      margin: 0;
+      font-size: clamp(22px, 3.8vw, 30px);
+      line-height: 1.3;
+      letter-spacing: -0.03em;
+    }
+
+    .question-helper {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 16px 16px 15px;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #bfd0ee;
+      box-shadow: 0 10px 24px rgba(24, 33, 47, 0.06);
+      background: #fcfdff;
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      box-shadow: 0 10px 24px rgba(24, 88, 214, 0.12);
+    }
+
+    .option-title {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .option-desc {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease, background 0.16s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #eef3f9;
+      color: #234;
+    }
+
+    .side-block + .side-block { margin-top: 14px; }
+
+    .side-title {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .side-text,
+    .side-list {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .side-list {
+      padding-left: 18px;
+    }
+
+    .side-list li + li { margin-top: 8px; }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+
+    .result-badge.ok { background: var(--ok-soft); color: var(--ok); }
+    .result-badge.warn { background: var(--warn-soft); color: var(--warn); }
+    .result-badge.danger { background: var(--danger-soft); color: var(--danger); }
+
+    .result-title {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 36px);
+      line-height: 1.22;
+      letter-spacing: -0.03em;
+    }
+
+    .result-desc {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface-soft);
+      padding: 16px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .info-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .checklist {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 14px 13px;
+      background: #fff;
+    }
+
+    .check-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .check-text {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .summary {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .resource-list {
+      margin-top: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .resource-card {
+      display: block;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-1px);
+      border-color: #bfd0ee;
+      box-shadow: 0 10px 24px rgba(24, 33, 47, 0.06);
+    }
+
+    .resource-card strong {
+      display: block;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .resource-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .footnote {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .notice-grid,
+      .result-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
       .wrap {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 24px;
-      }
-
-      .card {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 24px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-      }
-
-      .card + .card { margin-top: 16px; }
-
-      .badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-size: 13px;
-        font-weight: 700;
-      }
-
-      h1 {
-        margin: 12px 0 0;
-        font-size: 34px;
-        line-height: 1.2;
-      }
-
-      h2 {
-        margin: 0;
-        font-size: 28px;
-        line-height: 1.3;
-      }
-
-      h3 {
-        margin: 0;
-        font-size: 16px;
-      }
-
-      p {
-        margin: 12px 0 0;
-        line-height: 1.7;
-        color: var(--sub);
-      }
-
-      .note, .box {
+        width: min(100%, calc(100% - 16px));
         margin-top: 16px;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 16px;
-        background: #f8fafc;
+        margin-bottom: 36px;
       }
+      .hero,
+      .panel-body { padding: 18px; }
+      .check-item { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
 
-      .progress-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 20px;
+  <script>
+    const QUESTIONS = [
+      {
+        id: 'claimType',
+        label: '질문 1',
+        title: '현재 확인하려는 청구 유형은 무엇입니까?',
+        helper: '외래 실손 청구인지, 보험사 지정 서류가 있는지, 오래된 청구건인지 먼저 구분해야 합니다. (청구 유형에 따라 우선 확인 항목이 달라집니다.)',
+        options: [
+          { value: 'general', title: '일반 외래 실손 청구', desc: '기본 서류를 순서대로 확인하려는 경우' },
+          { value: 'insurer_doc', title: '보험사 지정 서류가 있는 청구', desc: '문자·앱·고객센터에서 특정 문서명을 안내받은 경우' },
+          { value: 'old', title: '오래된 청구건 또는 재발급 확인', desc: '과거 진료 서류의 보관 여부와 재발급 가능 여부가 중요한 경우' },
+          { value: 'wrong_type', title: '외래 실손 외 다른 청구일 수 있음', desc: '입원·정액형 담보 등 다른 유형일 가능성이 있는 경우' }
+        ]
+      },
+      {
+        id: 'officialReceipt',
+        label: '질문 2',
+        title: '병원 발행 영수증이 있습니까?',
+        helper: '카드 전표와 병원 공식 영수증은 동일하지 않습니다. 병원 발행 영수증 여부를 먼저 구분해야 합니다.',
+        options: [
+          { value: 'yes', title: '있습니다', desc: '병원명·환자명·진료일자·금액이 확인되는 영수증이 있습니다' },
+          { value: 'no', title: '없습니다', desc: '카드 전표만 있거나 영수증 자체가 없는 상태입니다' }
+        ]
+      },
+      {
+        id: 'detailStatement',
+        label: '질문 3',
+        title: '진료비 세부산정내역서가 있습니까?',
+        helper: '진료비 세부산정내역서(진료 항목, 처치 내역, 금액 구성이 적힌 문서) 제출 가능 여부를 확인해야 합니다.',
+        options: [
+          { value: 'yes', title: '있습니다', desc: '진료 항목과 금액 구성이 보이는 문서를 확보했습니다' },
+          { value: 'no', title: '없거나 불분명합니다', desc: '현재 보유 여부가 불명확하거나 재발급 여부를 확인하지 못했습니다' }
+        ]
+      },
+      {
+        id: 'readability',
+        label: '질문 4',
+        title: '제출 파일의 판독성과 문서 완전성은 확보되어 있습니까?',
+        helper: '판독성(글자를 식별할 수 있는 상태), 문서 완전성(항목 누락이 없는 상태), 프레임 절단, 음영 간섭, 반사광 간섭 여부를 확인해야 합니다.',
+        options: [
+          { value: 'good', title: '문제 없습니다', desc: '글자 식별이 가능하고 문서 일부가 잘리지 않았습니다' },
+          { value: 'issue', title: '문제가 있거나 확신이 없습니다', desc: '판독성 저하, 그림자, 반사, 잘림, 누락 페이지가 있을 수 있습니다' }
+        ]
+      },
+      {
+        id: 'treatmentNature',
+        label: '질문 5',
+        title: '이번 방문은 치료 목적 진료로 볼 수 있습니까?',
+        helper: '치료 목적 진료인지 확인성 방문인지 구분해야 합니다. (실제 치료 개입이 있었는지 확인하는 단계입니다.)',
+        options: [
+          { value: 'treatment', title: '치료 목적 진료입니다', desc: '처치·약 처방·치료 목적 진료로 설명할 수 있습니다' },
+          { value: 'check', title: '검사 중심 또는 확인성 방문에 가깝습니다', desc: '경과 확인, 단순 검사, 상태 점검 성격이 강합니다' },
+          { value: 'unclear', title: '불분명합니다', desc: '치료 목적 여부를 입증할 자료가 부족합니다' }
+        ]
+      },
+      {
+        id: 'treatmentProof',
+        label: '질문 6',
+        title: '상병코드 또는 치료 목적 입증 자료가 있습니까?',
+        helper: '입증 자료(진단명, 상병분류기호, 치료 사유가 적힌 문서) 확보 여부를 확인해야 합니다.',
+        options: [
+          { value: 'yes', title: '있습니다', desc: '상병코드·진단명·치료 사유가 적힌 자료가 있습니다' },
+          { value: 'no', title: '없거나 불분명합니다', desc: '처방전 외에 입증 자료가 없거나 확인하지 못했습니다' }
+        ]
+      },
+      {
+        id: 'pharmacyIncluded',
+        label: '질문 7',
+        title: '약국 약제비를 함께 청구할 예정입니까?',
+        helper: '약국 약제비를 함께 청구하면 병원 서류와 별도로 약제비 계산서영수증을 확인해야 합니다.',
+        options: [
+          { value: 'yes', title: '예', desc: '병원 진료비와 약국 약제비를 함께 청구할 예정입니다' },
+          { value: 'no', title: '아니오', desc: '병원 진료비만 확인하면 됩니다' }
+        ]
+      },
+      {
+        id: 'pharmacyReceipt',
+        label: '질문 8',
+        title: '약제비 계산서영수증이 있습니까?',
+        helper: '약제비 계산서영수증(약제명, 금액, 조제 내역이 포함된 문서) 보유 여부를 확인해야 합니다.',
+        options: [
+          { value: 'yes', title: '있습니다', desc: '약국 서류를 함께 제출할 수 있습니다' },
+          { value: 'no', title: '없거나 불분명합니다', desc: '약국 재발급 여부 또는 보관 여부를 확인해야 합니다' }
+        ]
+      },
+      {
+        id: 'insurerNamedDoc',
+        label: '질문 9',
+        title: '보험사가 특정 문서명을 지정했습니까?',
+        helper: '문서명이 명시된 경우에는 해당 문서명과 동일한 서류를 확인해야 합니다. (유사 명칭 서류와 구분해야 합니다.)',
+        options: [
+          { value: 'yes', title: '예', desc: '진단서·통원확인서·특정 양식 등 문서명이 안내되었습니다' },
+          { value: 'no', title: '아니오', desc: '특정 문서명 안내 없이 일반 제출 서류만 확인 중입니다' }
+        ]
+      },
+      {
+        id: 'namedDocReady',
+        label: '질문 10',
+        title: '지정된 문서명과 일치하는 서류를 확보했습니까?',
+        helper: '해당 문서명과 동일한 서류인지, 대체 가능 여부가 있는지 확인해야 합니다.',
+        options: [
+          { value: 'yes', title: '확보했습니다', desc: '문서명까지 일치하는 서류를 준비했습니다' },
+          { value: 'no', title: '아직 확보하지 못했습니다', desc: '유사 서류만 있거나 동일 서류가 없는 상태입니다' }
+        ]
+      },
+      {
+        id: 'autoUpload',
+        label: '질문 11',
+        title: '실손24 또는 보험사 앱 자동전송만으로 제출할 예정입니까?',
+        helper: '자동전송 외에 세부내역서 또는 추가 서류의 별도 업로드 필요 여부를 확인해야 합니다. (자동 수집만으로 제출 요건이 충족되는지 확인하는 단계입니다.)',
+        options: [
+          { value: 'yes', title: '예', desc: '자동전송만으로 접수를 마칠 계획입니다' },
+          { value: 'no', title: '아니오', desc: '필요 시 별도 파일 업로드도 확인할 계획입니다' }
+        ]
       }
+    ];
 
-      .progress-text {
-        font-size: 14px;
-        font-weight: 700;
-        color: #64748b;
-        white-space: nowrap;
+    const LABELS = {
+      claimType: {
+        general: '일반 외래 실손 청구',
+        insurer_doc: '보험사 지정 서류 청구',
+        old: '오래된 청구건 또는 재발급 확인',
+        wrong_type: '외래 실손 외 다른 청구 가능성'
+      },
+      officialReceipt: { yes: '병원 발행 영수증 있음', no: '병원 발행 영수증 없음' },
+      detailStatement: { yes: '진료비 세부산정내역서 있음', no: '진료비 세부산정내역서 없음 또는 불분명' },
+      readability: { good: '판독성 및 문서 완전성 확보', issue: '판독성 또는 문서 완전성 점검 필요' },
+      treatmentNature: {
+        treatment: '치료 목적 진료',
+        check: '검사 중심 또는 확인성 방문',
+        unclear: '치료 목적 여부 불분명'
+      },
+      treatmentProof: { yes: '치료 목적 입증 자료 있음', no: '치료 목적 입증 자료 없음 또는 불분명' },
+      pharmacyIncluded: { yes: '약국 약제비 함께 청구', no: '병원 진료비만 확인' },
+      pharmacyReceipt: { yes: '약제비 계산서영수증 있음', no: '약제비 계산서영수증 없음 또는 불분명' },
+      insurerNamedDoc: { yes: '보험사 지정 문서명 있음', no: '보험사 지정 문서명 없음' },
+      namedDocReady: { yes: '지정 문서 확보', no: '지정 문서 미확보' },
+      autoUpload: { yes: '자동전송 중심 제출 예정', no: '별도 업로드 여부도 확인 예정' }
+    };
+
+    const RESULT_MAP = {
+      ready: {
+        tone: 'ok',
+        badge: '제출 준비도 높음',
+        title: '기초 제출 서류군은 대체로 확인된 상태입니다.',
+        desc: '외래 실손 청구의 기본적인 제출 흐름은 어느 정도 정리된 상태입니다. 접수 직전에는 파일 품질과 누락 페이지 여부만 다시 점검하면 됩니다.',
+        decision: '현재 우선 확인 항목은 제출 파일의 판독성 및 문서 완전성 점검입니다.',
+        why: '병원 공식 영수증, 진료비 세부산정내역서, 치료 목적 입증 자료, 약국 서류 여부 중 확인되지 않은 항목이 많지 않습니다.',
+        next: '판독성 저하, 프레임 절단, 음영 간섭, 누락 페이지 여부를 점검한 뒤 접수 여부를 결정합니다.',
+        checklist: [
+          ['1순위', '병원명·환자명·진료일자·금액의 판독성(글자를 식별할 수 있는 상태)과 문서 완전성(항목 누락이 없는 상태)을 다시 확인합니다.'],
+          ['2순위', '실손24 또는 보험사 앱 자동전송만으로 제출 요건이 충족되는지 확인합니다.'],
+          ['3순위', '약국 약제비를 함께 청구하는 경우 약제비 계산서영수증 포함 여부를 최종 점검합니다.']
+        ]
+      },
+      missing: {
+        tone: 'warn',
+        badge: '보완 확인 필요',
+        title: '기초 제출 서류군의 확보 또는 확인이 부족합니다.',
+        desc: '접수 전 단계에서 확인해야 할 서류가 남아 있습니다. 현재는 제출 서류 수를 늘리기보다 어떤 항목이 비어 있는지 먼저 구분하는 것이 중요합니다.',
+        decision: '현재 우선 확인 항목은 영수증, 진료비 세부산정내역서, 문서 판독성, 약국 서류의 누락 여부입니다.',
+        why: '병원 공식 영수증, 진료비 세부산정내역서, 문서 판독성, 치료 목적 입증 자료, 약제비 계산서영수증 중 일부가 없거나 확인되지 않았습니다.',
+        next: '누락 서류 항목과 재발급 가능 여부를 확인한 뒤 제출 여부를 결정합니다.',
+        checklist: [
+          ['1순위', '병원 발행 영수증과 진료비 세부산정내역서의 보유 여부를 확인합니다.'],
+          ['2순위', '문서 판독성, 프레임 절단, 음영 간섭, 반사광 간섭, 누락 페이지 여부를 점검합니다.'],
+          ['3순위', '약국 약제비를 함께 청구하는 경우 약제비 계산서영수증의 보관 여부와 재발급 가능 여부를 확인합니다.']
+        ]
+      },
+      insurer_doc: {
+        tone: 'danger',
+        badge: '지정 문서 우선 확인',
+        title: '보험사가 지정한 문서명의 충족 여부를 먼저 확인해야 합니다.',
+        desc: '일반 서류가 있어도 보험사가 별도로 지정한 문서명이 있으면 해당 문서가 우선합니다. 유사한 문서만 있는 상태라면 접수 후 보완 요청이 발생할 수 있습니다.',
+        decision: '현재 우선 확인 항목은 지정 문서의 확보 여부, 문서명 일치 여부, 대체 가능 여부입니다.',
+        why: '보험사가 특정 서류를 명시했고 현재 상태는 해당 문서가 없거나 문서명이 일치하지 않는 서류만 있는 상태입니다.',
+        next: '문자, 앱, 고객센터 안내에 적힌 문서명을 확인하고 해당 서류의 확보 여부, 문서명 일치 여부, 대체 가능 여부를 점검합니다.',
+        checklist: [
+          ['1순위', '보험사가 안내한 문서명을 그대로 다시 확인합니다.'],
+          ['2순위', '현재 보유 서류가 해당 문서명과 정확히 일치하는지 확인합니다.'],
+          ['3순위', '동일 문서가 없으면 병원 또는 보험사에 대체 가능 여부를 확인합니다.']
+        ]
+      },
+      treatment: {
+        tone: 'warn',
+        badge: '치료 목적 입증 자료 확인',
+        title: '치료 목적 입증 자료의 보완 확인이 필요합니다.',
+        desc: '외래 실손 청구에서는 단순 검사·확인성 방문과 치료 목적 진료를 구분하는 자료가 중요할 수 있습니다. 현재는 진료 성격을 설명할 자료가 충분한지 먼저 확인해야 합니다.',
+        decision: '현재 우선 확인 항목은 치료 목적 진료 여부와 이를 입증할 자료의 충분성입니다.',
+        why: '치료 목적이 불명확하거나 상병코드 확인 자료가 부족하거나 검사 중심 방문 또는 확인성 방문으로 분류될 여지가 있습니다.',
+        next: '이번 방문이 치료 목적 진료였는지 확인하고 이를 입증할 수 있는 상병코드 자료 또는 진료 관련 문서를 정리합니다.',
+        checklist: [
+          ['1순위', '상병코드, 진단명, 치료 사유가 표시된 입증 자료의 보유 여부를 확인합니다.'],
+          ['2순위', '처방전만 있는지, 치료 목적을 설명할 별도 문서가 있는지 구분합니다.'],
+          ['3순위', '검사 중심 방문인지 치료 개입이 있었던 방문인지 진료 성격을 다시 정리합니다.']
+        ]
+      },
+      reissue: {
+        tone: 'warn',
+        badge: '보관·재발급 확인 우선',
+        title: '보관 여부와 재발급 가능 여부 확인이 우선입니다.',
+        desc: '오래된 청구건은 현재 보유 여부보다 재발급 가능 항목과 보관 기간 확인이 더 중요할 수 있습니다. 먼저 병원과 약국에서 어떤 문서를 다시 받을 수 있는지 점검해야 합니다.',
+        decision: '현재 우선 확인 항목은 보관 여부, 재발급 가능 항목, 재출력 가능 시점입니다.',
+        why: '오래된 청구건이거나 재발급이 필요한 상황이며 보관 여부 또는 재발급 가능 여부가 확인되지 않았거나 불명확합니다.',
+        next: '병원과 약국에 보관 여부, 재발급 가능 항목, 재출력 가능 시점을 확인한 뒤 제출 서류를 정리합니다.',
+        checklist: [
+          ['1순위', '병원에 영수증, 진료비 세부산정내역서, 통원 관련 서류의 보관 여부를 확인합니다.'],
+          ['2순위', '약국 약제비 계산서영수증의 재발급 가능 여부를 확인합니다.'],
+          ['3순위', '발급 가능한 항목과 발급이 어려운 항목을 구분한 뒤 제출 계획을 다시 정리합니다.']
+        ]
+      },
+      wrong_type: {
+        tone: 'danger',
+        badge: '청구 유형 재확인 필요',
+        title: '외래 실손 청구와 다른 유형일 가능성을 먼저 확인해야 합니다.',
+        desc: '현재 상황이 입원 청구, 정액형 담보, 진단금 청구 등 다른 유형에 가까우면 필요한 서류 기준이 달라집니다. 외래 실손 기준으로만 정리하면 서류 방향이 어긋날 수 있습니다.',
+        decision: '현재 우선 확인 항목은 해당 청구가 외래 실손인지, 입원인지, 정액형 담보인지의 유형 구분입니다.',
+        why: '청구 유형이 확정되지 않으면 필요한 문서 종류와 우선순위를 정확히 정할 수 없습니다.',
+        next: '보험 증권, 담보명, 보험사 안내 화면을 확인해 해당 청구 유형을 먼저 구분한 뒤 그 기준에 맞는 서류를 검토합니다.',
+        checklist: [
+          ['1순위', '보험 증권 또는 담보명을 확인해 외래 실손인지 구분합니다.'],
+          ['2순위', '입원 청구, 정액형 담보, 진단금 청구 여부를 함께 확인합니다.'],
+          ['3순위', '유형 확인 후 해당 기준에 맞는 서류 목록으로 다시 점검합니다.']
+        ]
       }
+    };
 
-      .progress {
-        flex: 1;
-        height: 10px;
-        border-radius: 999px;
-        background: #e2e8f0;
-        overflow: hidden;
+    const RESOURCES = [
+      {
+        title: '실손보험 청구 서류 총정리: 제출 전 꼭 확인해야 할 영수증·세부내역서·추가서류',
+        desc: '외래 실손 청구 전에 전체 서류 구조를 다시 확인할 때 참고하기 좋은 정리 글입니다.',
+        href: 'https://health-boost.tistory.com/170'
+      },
+      {
+        title: '외래 실손 청구 서류: 제출 전 꼭 확인해야 할 영수증·세부내역서·처방전 가이드',
+        desc: '외래 실손 청구에 맞춰 영수증, 세부내역서, 처방전 흐름을 다시 점검할 수 있는 글입니다.',
+        href: 'https://health-boost.tistory.com/169'
       }
+    ];
 
-      .progress-bar {
-        height: 100%;
-        border-radius: 999px;
-        background: #0f172a;
-        transition: width 0.25s ease;
-      }
+    const state = {
+      step: 0,
+      answers: {}
+    };
 
-      .question-box {
-        border: 1px solid var(--line);
-        border-radius: 22px;
-        padding: 22px;
-        background: #f8fafc;
-      }
-
-      .actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-top: 20px;
-      }
-
-      button, a.cta {
-        width: 100%;
-        border: 0;
-        border-radius: 18px;
-        padding: 15px 16px;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .btn-dark {
-        background: #0f172a;
-        color: white;
-      }
-
-      .btn-light {
-        background: white;
-        color: #0f172a;
-        border: 1px solid #cbd5e1;
-      }
-
-      .btn-secondary {
-        margin-top: 12px;
-        background: white;
-        color: #334155;
-        border: 1px solid #cbd5e1;
-      }
-
-      .result.ready { background: var(--blue-bg); border-color: var(--blue-line); }
-      .result.incomplete { background: var(--red-bg); border-color: var(--red-line); }
-      .result.recheck { background: var(--amber-bg); border-color: var(--amber-line); }
-      .result.out_of_scope { background: var(--gray-bg); border-color: var(--gray-line); }
-
-      .result.ready .badge { background: rgba(255,255,255,.85); color: var(--blue-text); }
-      .result.incomplete .badge { background: rgba(255,255,255,.85); color: var(--red-text); }
-      .result.recheck .badge { background: rgba(255,255,255,.85); color: var(--amber-text); }
-      .result.out_of_scope .badge { background: rgba(255,255,255,.85); color: var(--gray-text); }
-
-      .stack { display: grid; gap: 14px; margin-top: 18px; }
-
-      .mini-card {
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        background: rgba(255,255,255,.85);
-        padding: 16px;
-      }
-
-      ul {
-        margin: 12px 0 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      li {
-        margin-top: 8px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        background: #f8fafc;
-        padding: 12px 14px;
-        color: var(--sub);
-        line-height: 1.6;
-      }
-
-      .link-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-top: 18px;
-      }
-
-      .footer-btn { margin-top: 14px; }
-
-      @media (max-width: 640px) {
-        .wrap { padding: 16px; }
-        h1 { font-size: 28px; }
-        h2 { font-size: 24px; }
-        .actions, .link-grid { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div class="card">
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;">MVP Static Version</span>
-        <h1>외래 실손 청구 서류 체크기</h1>
-        <p>지금 제출 가능한지, 어떤 서류가 빠졌는지 간단히 확인합니다.</p>
-        <div class="note">외래 실손 청구의 기본 서류를 확인하는 화면입니다. 최종 제출 기준은 가입 상품과 보험사 안내에 따라 달라질 수 있습니다.</div>
-      </div>
-
-      <div id="app"></div>
-    </div>
-
-    <script>
-      const QUESTIONS = [
-        { id: 'q1', title: '외래 진료에 대한 실손 청구가 맞습니까?', helper: '외래 실손 청구의 기본 서류만 확인합니다.' },
-        { id: 'q2', title: '진료비 영수증이 있습니까?', helper: '병원에서 발급받은 진료비 영수증 보유 여부를 확인합니다.' },
-        { id: 'q3', title: '진료비 세부내역서가 있습니까?', helper: '비용 항목이 적힌 세부내역서 보유 여부를 확인합니다.' },
-        { id: 'q4', title: '처방전 또는 진단 관련 확인 서류가 있습니까?', helper: '예: 처방전, 질병분류기호 확인 서류 등 진료 내용을 확인할 수 있는 자료입니다.' },
-        { id: 'q5', title: '약제비도 함께 청구할 예정입니까?', helper: '약국 비용까지 함께 청구할 계획인지 확인합니다.' },
-        { id: 'q6', title: '약제비 영수증이 있습니까?', helper: '약제비 청구 시 약국 영수증 보유 여부를 확인합니다.', dependsOn: (answers) => answers.q5 === true },
-        { id: 'q7', title: '보험사에서 추가 서류를 별도로 안내하였습니까?', helper: '앱 안내, 문자, 고객센터 안내 등으로 추가 제출 요청을 받은 경우를 말합니다.' },
-      ];
-
-      const DOC_INFO = {
-        q2: { name: '진료비 영수증', reason: '기본 결제 사실을 확인하는 데 쓰입니다.', where: '병원 원무과 또는 수납 창구에서 재발급을 요청할 수 있습니다.', linkLabel: '진료비 영수증 다시 받는 방법 보기' },
-        q3: { name: '진료비 세부내역서', reason: '비용 항목과 세부 내용 확인에 쓰입니다.', where: '병원 원무과에서 세부내역서 발급을 요청할 수 있습니다.', linkLabel: '세부내역서 어디서 받는지 바로 보기' },
-        q4: { name: '처방전 또는 진단 관련 확인 서류', reason: '처방 내역 또는 진단 관련 정보를 확인하는 데 쓰입니다.', where: '진료과 또는 병원 원무과에서 확인 가능한 서류를 요청할 수 있습니다.', linkLabel: '처방전·진단 관련 서류 정리 보기' },
-        q6: { name: '약제비 영수증', reason: '약국 결제 내역 확인에 쓰입니다.', where: '조제받은 약국에서 재발급을 요청할 수 있습니다.', linkLabel: '약제비 영수증 누락 시 준비 순서 보기' },
-      };
-
-      const state = { answers: {}, step: 0, completed: false };
-      const app = document.getElementById('app');
-
-      function visibleQuestions() {
-        return QUESTIONS.filter((q) => !q.dependsOn || q.dependsOn(state.answers));
-      }
-
-      function buildMissingDocs() {
-        const missing = [];
-        if (state.answers.q2 === false) missing.push(DOC_INFO.q2);
-        if (state.answers.q3 === false) missing.push(DOC_INFO.q3);
-        if (state.answers.q4 === false) missing.push(DOC_INFO.q4);
-        if (state.answers.q5 === true && state.answers.q6 === false) missing.push(DOC_INFO.q6);
-        return missing;
-      }
-
-      function joinNames(items) {
-        return items.map((item) => item.name).join(', ');
-      }
-
-      function buildLinks(type, missing) {
-        if (type === 'incomplete') {
-          const primary = missing[0];
-          return [
-            { label: primary?.linkLabel || '누락 서류 준비 방법 보기', href: '#' },
-            { label: '실손 청구 전 서류 체크리스트 보기', href: '#' },
-          ];
+    function getVisibleQuestions() {
+      const a = state.answers;
+      return QUESTIONS.filter(function (q) {
+        if (q.id === 'pharmacyReceipt') {
+          return a.pharmacyIncluded === 'yes';
         }
-        if (type === 'recheck') {
-          return [
-            { label: '보험사 추가서류 요구받았을 때 먼저 볼 글', href: '#' },
-            { label: '실손 거절·보완 요청 줄이는 방법 보기', href: '#' },
-          ];
+        if (q.id === 'namedDocReady') {
+          return a.insurerNamedDoc === 'yes' || a.claimType === 'insurer_doc';
         }
-        if (type === 'ready') {
-          return [
-            { label: '제출 전 마지막 확인 항목 바로 보기', href: '#' },
-            { label: '앱·온라인 청구 전에 점검할 것 보기', href: '#' },
-          ];
-        }
-        return [
-          { label: '입원 청구 기준부터 다시 보기', href: '#' },
-          { label: '실손 청구 전체 흐름 정리 보기', href: '#' },
-        ];
+        return true;
+      });
+    }
+
+    function getCurrentQuestion() {
+      const visible = getVisibleQuestions();
+      return visible[state.step] || null;
+    }
+
+    function setAnswer(questionId, value) {
+      state.answers[questionId] = value;
+
+      if (questionId === 'pharmacyIncluded' && value === 'no') {
+        delete state.answers.pharmacyReceipt;
+      }
+      if (questionId === 'insurerNamedDoc' && value === 'no' && state.answers.claimType !== 'insurer_doc') {
+        delete state.answers.namedDocReady;
       }
 
-      function buildChecklist(type, missing) {
-        if (type === 'incomplete') {
-          const checklist = ['누락된 서류가 무엇인지 먼저 확인합니다.'];
-          missing.forEach((doc) => checklist.push(doc.where));
-          checklist.push('서류를 다시 받은 뒤 사진 또는 파일 상태까지 점검합니다.');
-          return checklist;
-        }
-        if (type === 'recheck') {
-          return [
-            '보험사 앱, 문자, 고객센터 안내 중 가장 최근 기준을 먼저 확인합니다.',
-            '추가로 요구된 서류 명칭을 그대로 적어 둡니다.',
-            '기본 서류와 추가 서류를 섞지 말고 구분해서 준비합니다.',
-          ];
-        }
-        if (type === 'ready') {
-          return [
-            '준비된 서류가 흐리거나 잘리지 않았는지 마지막으로 확인합니다.',
-            '앱 또는 온라인 제출 예정이라면 파일 상태를 먼저 점검합니다.',
-            '제출 직전 보험사 기준이 바뀐 항목이 없는지 한 번 더 확인합니다.',
-          ];
-        }
-        return [
-          '현재 청구 유형이 외래인지 입원인지 다시 확인합니다.',
-          '입원 청구라면 그에 맞는 서류 기준을 따로 확인합니다.',
-          '현재 상황에 맞는 안내 글로 이동해 다음 흐름을 잡습니다.',
-        ];
-      }
-
-      function evaluateResult() {
-        if (state.answers.q1 === false) {
-          const type = 'out_of_scope';
-          return {
-            type,
-            badge: '외래 청구 범위 아님',
-            title: '현재 선택한 상황은 외래 청구 기준에 해당하지 않습니다',
-            description: '입력한 내용 기준으로 보면 현재 상황은 외래 실손 청구의 기본 서류 확인 범위를 벗어납니다. 이 화면은 외래 청구를 전제로 설계되어 있어, 입원 청구나 다른 유형의 청구에는 그대로 적용하기 어렵습니다.',
-            detailSummary: '첫 질문에서 외래 청구 전제와 맞지 않는 선택이 확인되어 현재 결과가 나왔습니다. 즉, 서류가 부족해서가 아니라 청구 유형 자체가 이 화면의 범위를 벗어난 상태입니다.',
-            nextAction: '현재 상황에 맞는 청구 유형 기준을 다시 확인한 뒤, 그 흐름에 맞는 서류 준비로 넘어가는 것이 좋습니다.',
-            missing: [],
-            checklist: buildChecklist(type, []),
-            links: buildLinks(type, []),
-          };
-        }
-
-        if (state.answers.q7 === true) {
-          const type = 'recheck';
-          return {
-            type,
-            badge: '재확인 필요',
-            title: '보험사 기준 재확인 필요',
-            description: '기본 서류를 어느 정도 갖추고 있더라도, 보험사에서 진단서나 추가 증빙을 별도로 안내한 경우에는 그 안내가 우선입니다. 이 경우는 서류를 단순히 많이 모으는 문제가 아니라, 보험사 기준과 정확히 맞추는 것이 핵심입니다.',
-            detailSummary: '추가 서류를 별도로 안내받았다는 응답이 있어 현재 결과가 나왔습니다. 이런 경우에는 기본 서류만 준비해 제출했다가 다시 보완 요청을 받을 수 있어, 제출 전에 기준을 한 번 더 맞춰보는 것이 안전합니다.',
-            nextAction: '가입 상품 약관, 보험사 앱 안내, 고객센터 안내 내용을 순서대로 다시 확인한 뒤 제출 준비를 이어가는 것이 좋습니다.',
-            missing: [],
-            checklist: buildChecklist(type, []),
-            links: buildLinks(type, []),
-          };
-        }
-
-        const missing = buildMissingDocs();
-        if (missing.length > 0) {
-          const type = 'incomplete';
-          return {
-            type,
-            badge: '서류 보완 필요',
-            title: '서류 보완 필요',
-            description: '현재 입력한 내용으로 보면 바로 제출하기에는 서류가 일부 부족할 가능성이 있습니다. 이 상태에서 청구를 진행하면 추가 보완 요청이 생기거나, 다시 서류를 준비해야 하는 번거로움이 생길 수 있습니다.',
-            detailSummary: `${joinNames(missing)} 항목이 확인되지 않아 현재 상태로는 바로 제출하기보다 먼저 서류를 보완하는 쪽이 더 안전합니다.`,
-            nextAction: '누락된 서류를 먼저 채운 뒤 다시 점검하면, 제출 흐름을 훨씬 안정적으로 가져갈 수 있습니다.',
-            missing,
-            checklist: buildChecklist(type, missing),
-            links: buildLinks(type, missing),
-          };
-        }
-
-        const type = 'ready';
-        const baseDocs = ['진료비 영수증', '진료비 세부내역서', '처방전 또는 진단 관련 확인 서류'];
-        if (state.answers.q5 === true) baseDocs.push('약제비 영수증');
-        return {
-          type,
-          badge: '기본 서류 기준 충족',
-          title: '기본 서류 기준 충족',
-          description: '현재 입력한 내용 기준으로는 외래 실손 청구에 필요한 기본 서류를 대체로 갖춘 상태입니다. 바로 제출이 가능한 흐름에 가깝지만, 실제 접수 전에는 가입 상품별 세부 기준이 달라질 수 있다는 점까지 한 번 더 점검하는 것이 좋습니다.',
-          detailSummary: `${baseDocs.join(', ')} 항목이 모두 확인되어 기본 서류 흐름은 비교적 정리된 상태입니다.`,
-          nextAction: '서류 상태를 마지막으로 점검하고, 보험사 제출 방식에 맞게 파일 또는 사진 형태를 정리한 뒤 진행하면 됩니다.',
-          missing: [],
-          checklist: buildChecklist(type, []),
-          links: buildLinks(type, []),
-        };
-      }
-
-      function answer(value) {
-        const questions = visibleQuestions();
-        const current = questions[state.step];
-        state.answers[current.id] = value;
-
-        if (current.id === 'q5' && value === false) {
-          delete state.answers.q6;
-        }
-
-        const nextQuestions = visibleQuestions();
-        const isLast = state.step >= nextQuestions.length - 1;
-        if (isLast) {
-          state.completed = true;
-        } else {
-          state.step += 1;
-        }
+      const visible = getVisibleQuestions();
+      const lastIndex = visible.length - 1;
+      if (state.step < lastIndex) {
+        state.step += 1;
         render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        renderResult();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    }
 
-      function prev() {
-        state.step = Math.max(state.step - 1, 0);
+    function goBack() {
+      if (state.step > 0) {
+        state.step -= 1;
         render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    }
 
-      function restart() {
-        state.answers = {};
-        state.step = 0;
-        state.completed = false;
-        render();
-      }
-
-      function renderQuestion() {
-        const questions = visibleQuestions();
-        const current = questions[state.step];
-        const progress = Math.min(state.step + 1, questions.length);
-        const pct = (progress / questions.length) * 100;
-
-        app.innerHTML = `
-          <div class="card">
-            <div class="progress-row">
-              <div class="progress-text">진행률 ${progress} / ${questions.length}</div>
-              <div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div>
-            </div>
-
-            <div class="question-box">
-              <h2>${current.title}</h2>
-              <p>${current.helper}</p>
-            </div>
-
-            <div class="actions">
-              <button class="btn-dark" id="yesBtn">예</button>
-              <button class="btn-light" id="noBtn">아니오</button>
-            </div>
-            <button class="btn-secondary" id="prevBtn" ${state.step === 0 ? 'disabled style="opacity:.45;cursor:not-allowed;"' : ''}>이전 질문</button>
-          </div>
-        `;
-
-        document.getElementById('yesBtn').onclick = () => answer(true);
-        document.getElementById('noBtn').onclick = () => answer(false);
-        document.getElementById('prevBtn').onclick = () => { if (state.step > 0) prev(); };
-      }
-
-      function renderResult() {
-        const result = evaluateResult();
-        const missingHtml = result.missing.length
-          ? `
-            <div class="mini-card">
-              <h3>누락 가능성이 있는 서류</h3>
-              <div class="stack">
-                ${result.missing.map((item) => `
-                  <div class="mini-card">
-                    <strong>${item.name}</strong>
-                    <p>왜 필요한지: ${item.reason}</p>
-                    <p>어디서 받는지: ${item.where}</p>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `
-          : '';
-
-        app.innerHTML = `
-          <div class="card result ${result.type}">
-            <span class="badge">${result.badge}</span>
-            <h2>${result.title}</h2>
-            <p>${result.description}</p>
-
-            <div class="mini-card">
-              <h3>왜 이런 결과가 나왔는지</h3>
-              <p>${result.detailSummary}</p>
-            </div>
-
-            ${missingHtml}
-
-            <div class="mini-card">
-              <h3>다음 행동</h3>
-              <p>${result.nextAction}</p>
-            </div>
-
-            <div class="mini-card">
-              <h3>지금 확인할 체크리스트</h3>
-              <ul>
-                ${result.checklist.map((item) => `<li>${item}</li>`).join('')}
-              </ul>
-            </div>
-
-            <div class="link-grid">
-              ${result.links.map((link) => `<a class="cta btn-light" href="${link.href}">${link.label}</a>`).join('')}
-            </div>
-
-            <button class="btn-dark footer-btn" id="restartBtn">다시 확인하기</button>
-          </div>
-        `;
-
-        document.getElementById('restartBtn').onclick = restart;
-      }
-
-      function render() {
-        if (state.completed) {
-          renderResult();
-        } else {
-          renderQuestion();
-        }
-      }
-
+    function restart() {
+      state.step = 0;
+      state.answers = {};
       render();
-    </script>
-  </body>
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function chooseResult() {
+      const a = state.answers;
+
+      if (a.claimType === 'wrong_type') return 'wrong_type';
+      if ((a.claimType === 'insurer_doc' || a.insurerNamedDoc === 'yes') && a.namedDocReady !== 'yes') return 'insurer_doc';
+      if (a.treatmentNature !== 'treatment' || a.treatmentProof !== 'yes') return 'treatment';
+
+      const missingCore = a.officialReceipt !== 'yes' || a.detailStatement !== 'yes' || a.readability !== 'good';
+      const missingPharmacy = a.pharmacyIncluded === 'yes' && a.pharmacyReceipt !== 'yes';
+      if (missingCore || missingPharmacy) return 'missing';
+
+      if (a.claimType === 'old') return 'reissue';
+      return 'ready';
+    }
+
+    function buildSummaryChips() {
+      const visible = getVisibleQuestions();
+      return visible
+        .filter(function (q) { return state.answers[q.id]; })
+        .map(function (q) {
+          const labelMap = LABELS[q.id] || {};
+          const text = labelMap[state.answers[q.id]] || state.answers[q.id];
+          return '<span class="chip">' + escapeHtml(text) + '</span>';
+        })
+        .join('');
+    }
+
+    function renderSidePanel() {
+      return '\
+        <div class="panel">\
+          <div class="panel-body">\
+            <div class="side-block">\
+              <h3 class="side-title">도구 기준</h3>\
+              <p class="side-text">외래 실손 청구를 기준으로 영수증, 진료비 세부산정내역서, 치료 목적 입증 자료, 약국 서류, 보험사 지정 문서 여부를 순서대로 점검하는 도구입니다.</p>\
+            </div>\
+            <div class="side-block">\
+              <h3 class="side-title">먼저 확인할 사항</h3>\
+              <ul class="side-list">\
+                <li>병원 발행 영수증과 카드 전표는 동일하지 않습니다.</li>\
+                <li>진료비 세부산정내역서 제출 가능 여부를 먼저 확인합니다.</li>\
+                <li>문서 판독성, 프레임 절단, 음영 간섭, 누락 페이지를 점검합니다.</li>\
+                <li>자동전송만으로 제출 요건이 충족되는지 따로 확인합니다.</li>\
+              </ul>\
+            </div>\
+          </div>\
+        </div>';
+    }
+
+    function renderQuestion() {
+      const visible = getVisibleQuestions();
+      const question = getCurrentQuestion();
+      const current = state.step + 1;
+      const progress = Math.round((current / visible.length) * 100);
+      const options = question.options.map(function (opt) {
+        const selected = state.answers[question.id] === opt.value ? ' selected' : '';
+        return '<button class="option' + selected + '" type="button" data-question="' + escapeHtml(question.id) + '" data-value="' + escapeHtml(opt.value) + '">'
+          + '<span class="option-title">' + escapeHtml(opt.title) + '</span>'
+          + '<span class="option-desc">' + escapeHtml(opt.desc) + '</span>'
+          + '</button>';
+      }).join('');
+
+      document.getElementById('app').innerHTML = '\
+        <div class="wrap">\
+          <section class="hero">\
+            <span class="eyebrow">외래 실손 청구 기준 점검 도구</span>\
+            <h1>외래 실손 청구 서류 점검기</h1>\
+            <p class="lead">제출 전 단계에서 영수증, 진료비 세부산정내역서, 치료 목적 입증 자료, 약국 서류, 보험사 지정 문서를 순서대로 확인할 수 있도록 정리한 점검 도구입니다.</p>\
+            <div class="notice-grid">\
+              <div class="notice">이 도구는 정보 정리용 참고 자료입니다. 최종 제출 기준은 보험사 안내와 실제 담보 조건이 우선합니다.</div>\
+              <div class="notice">외래 실손 청구 기준으로 구성했습니다. 입원, 정액형 담보, 진단금 청구는 필요한 서류 기준이 달라질 수 있습니다.</div>\
+            </div>\
+          </section>\
+          <section class="main">\
+            <div class="panel">\
+              <div class="panel-body">\
+                <div class="progress-wrap">\
+                  <div class="progress-meta">\
+                    <strong>' + current + ' / ' + visible.length + '</strong>\
+                    <span>진행률 ' + progress + '%</span>\
+                  </div>\
+                  <div class="progress-bar"><div class="progress-fill" style="width:' + progress + '%"></div></div>\
+                </div>\
+                <span class="question-kicker">' + escapeHtml(question.label) + '</span>\
+                <h2 class="question-title">' + escapeHtml(question.title) + '</h2>\
+                <p class="question-helper">' + escapeHtml(question.helper) + '</p>\
+                <div class="option-list">' + options + '</div>\
+                <div class="actions">\
+                  <button class="btn btn-secondary" type="button" id="backBtn" ' + (state.step === 0 ? 'disabled' : '') + '>이전 질문</button>\
+                  <button class="btn btn-primary" type="button" id="restartBtn">처음부터 다시 확인</button>\
+                </div>\
+              </div>\
+            </div>\
+            ' + renderSidePanel() + '\
+          </section>\
+        </div>';
+
+      document.querySelectorAll('.option').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setAnswer(button.dataset.question, button.dataset.value);
+        });
+      });
+
+      document.getElementById('backBtn').addEventListener('click', goBack);
+      document.getElementById('restartBtn').addEventListener('click', restart);
+    }
+
+    function renderResult() {
+      const key = chooseResult();
+      const result = RESULT_MAP[key];
+      const checklist = result.checklist.map(function (item) {
+        return '<div class="check-item"><span class="check-rank">' + escapeHtml(item[0]) + '</span><div class="check-text">' + escapeHtml(item[1]) + '</div></div>';
+      }).join('');
+
+      const resources = RESOURCES.map(function (item) {
+        return '<a class="resource-card" href="' + escapeHtml(item.href) + '" target="_blank" rel="noopener noreferrer">'
+          + '<strong>' + escapeHtml(item.title) + '</strong>'
+          + '<span>' + escapeHtml(item.desc) + '</span>'
+          + '</a>';
+      }).join('');
+
+      let extraAutoUpload = '';
+      if (state.answers.autoUpload === 'yes') {
+        extraAutoUpload = '<div class="info-card"><h3>자동전송 확인</h3><p>실손24 또는 보험사 앱 자동전송만으로 제출이 끝나는지, 세부내역서나 추가 서류의 별도 업로드가 필요한지 다시 확인하는 것이 좋습니다.</p></div>';
+      }
+
+      document.getElementById('app').innerHTML = '\
+        <div class="wrap">\
+          <section class="hero">\
+            <span class="eyebrow">외래 실손 청구 기준 점검 결과</span>\
+            <h1>입력한 조건을 기준으로 현재 우선 확인 항목을 정리했습니다.</h1>\
+            <p class="lead">결과는 참고용이며, 실제 제출 기준은 보험사 안내와 보장 내용이 우선합니다.</p>\
+          </section>\
+          <section class="main">\
+            <div class="panel">\
+              <div class="panel-body">\
+                <span class="result-badge ' + result.tone + '">' + escapeHtml(result.badge) + '</span>\
+                <h2 class="result-title">' + escapeHtml(result.title) + '</h2>\
+                <p class="result-desc">' + escapeHtml(result.desc) + '</p>\
+                <div class="result-grid">\
+                  <div class="info-card"><h3>현재 판정</h3><p>' + escapeHtml(result.decision) + '</p></div>\
+                  <div class="info-card"><h3>판단 근거</h3><p>' + escapeHtml(result.why) + '</p></div>\
+                  <div class="info-card"><h3>지금 확인할 것</h3><p>' + escapeHtml(result.next) + '</p></div>\
+                  ' + extraAutoUpload + '\
+                </div>\
+                <div class="checklist">' + checklist + '</div>\
+                <div class="summary">' + buildSummaryChips() + '</div>\
+                <div class="actions">\
+                  <button class="btn btn-secondary" type="button" id="reviewBtn">이전 질문으로 돌아가기</button>\
+                  <button class="btn btn-primary" type="button" id="restartBtn">처음부터 다시 확인</button>\
+                </div>\
+                <div class="footnote">이 도구는 외래 실손 청구 기준의 정보 정리용 화면입니다. 최종 제출 문서와 접수 가능 여부는 보험사 안내, 실제 담보 조건, 병원·약국 발급 가능 문서를 기준으로 확인해야 합니다.</div>\
+              </div>\
+            </div>\
+            <div>\
+              <div class="panel">\
+                <div class="panel-body">\
+                  <h3 class="side-title">관련 글</h3>\
+                  <p class="side-text">현재 결과와 연결해서 확인하면 좋은 글입니다.</p>\
+                  <div class="resource-list">' + resources + '</div>\
+                </div>\
+              </div>\
+              <div class="panel" style="margin-top:14px;">\
+                <div class="panel-body">\
+                  <h3 class="side-title">확인 메모</h3>\
+                  <ul class="side-list">\
+                    <li>병원 발행 영수증과 카드 전표는 구분해야 합니다.</li>\
+                    <li>진료비 세부산정내역서와 치료 목적 입증 자료는 역할이 다릅니다.</li>\
+                    <li>보험사가 지정한 문서명이 있으면 일반 서류보다 우선 확인합니다.</li>\
+                    <li>오래된 청구건은 보관 여부와 재발급 가능 항목부터 확인합니다.</li>\
+                  </ul>\
+                </div>\
+              </div>\
+            </div>\
+          </section>\
+        </div>';
+
+      document.getElementById('restartBtn').addEventListener('click', restart);
+      document.getElementById('reviewBtn').addEventListener('click', function () {
+        const visible = getVisibleQuestions();
+        state.step = Math.max(0, visible.length - 1);
+        render();
+      });
+    }
+
+    function render() {
+      renderQuestion();
+    }
+
+    render();
+  </script>
+</body>
 </html>
